@@ -8,79 +8,30 @@ app.get("/api/1451001600000", (req, res) => {
 });
 
 app.get("/api/:date?", (req, res) => {
-  const { date } = req.params;
-  var days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  var months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  var now = new Date(date);
-  // console.log(days[now.getDay()] + `,` + now.getDate() + " " + months[now.getMonth()] + ' ' + now.getFullYear());
-
-  if (date) {
-    if (now.getDate() > 31 || now.getMonth() > 12) {
-      res.json({
-        error: "Invalid Date",
-      });
-    } else {
-        return res.json({
-          unix: now.getTime(),
-          utc:
-            days[now.getDay()] +
-            `,` +
-            now.getDate() +
-            " " +
-            months[now.getMonth()] +
-            " " +
-            now.getFullYear() +
-            " " +
-            now.getHours() +
-            ":" +
-            now.getMinutes() +
-            ":" +
-            now.getSeconds() +
-            " GMT",
-        });
-    }
-  } else {
-    const d = new Date();
+let dateString = req.params.date;
+//A 4 digit number is a valid ISO-8601 for the beginning of that year
+//5 digits or more must be a unix time, until we reach a year 10,000 problem
+if(!dateString){
     return res.json({
-      unix: d.getTime(),
-      utc:
-        days[d.getDay()] +
-        `,` +
-        d.getDate() +
-        " " +
-        months[d.getMonth()] +
-        " " +
-        d.getFullYear() +
-        " " +
-        d.getHours() +
-        ":" +
-        d.getMinutes() +
-        ":" +
-        d.getSeconds() +
-        " GMT",
-    });
-  }
+              unix: new Date().getTime(),
+              utc: new Date().toUTCString()
+            })
+}
+else{
+    if (/\d{5,}/.test(dateString)) {
+      let dateInt = parseInt(dateString);
+      //Date regards numbers as unix timestamps, strings are processed differently
+      res.json({ unix: dateString, utc: new Date(dateInt).toUTCString() });
+    } else {
+      let dateObject = new Date(dateString);
+    
+      if (dateObject.toString() === "Invalid Date") {
+        res.json({ error: "Invalid Date" });
+      } else {
+        res.json({ unix: dateObject.valueOf(), utc: dateObject.toUTCString() });
+      }
+    }
+}
 });
 
 app.listen(5000, () => {
