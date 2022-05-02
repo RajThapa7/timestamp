@@ -11,19 +11,17 @@ app.get("/api/1451001600000", (req, res) => {
   res.json({ unix: 1451001600000, utc: "Fri, 25 Dec 2015 00:00:00 GMT" });
 });
 
-app.get('/api/', (req, res)=>{
-    res.json({
-        unix: Number(new Date().getTime()),
-        utc: new Date().toUTCString()
-      })
+// app.get('/api/', (req, res)=>{
+//     res.json({
+//         unix: Number(new Date().getTime()),
+//         utc: new Date().toUTCString()
+//       })
 
-})
+// })
 
 app.get("/api/:date?", (req, res) => {
 let date_string = req.params.date;
-//A 4 digit number is a valid ISO-8601 for the beginning of that year
-//5 digits or more must be a unix time, until we reach a year 10,000 problem
-if(date_string == ''){
+if(!date_string){
     return res.json({
               unix: Number(new Date().getTime()),
               utc: new Date().toUTCString()
@@ -32,7 +30,6 @@ if(date_string == ''){
 else{
     if (/\d{5,}/.test(date_string)) {
       let dateInt = parseInt(date_string);
-      //Date regards numbers as unix timestamps, strings are processed differently
       res.json({ unix: Number(date_string), utc: new Date(dateInt).toUTCString() });
     } else {
       let dateObject = new Date(date_string);
